@@ -1,0 +1,106 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { useTranslation } from 'react-i18next';
+import LanguageToggle from "@/components/LanguageToggle";
+
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [location] = useLocation();
+  const { t } = useTranslation();
+
+  const navigation = [
+    { name: t('nav.home'), href: "/", key: "home" },
+    { name: t('nav.menu'), href: "/menu", key: "menu" },
+    { name: t('nav.reservations'), href: "/reservations", key: "reservations" },
+    { name: t('nav.gallery'), href: "/gallery", key: "gallery" },
+    { name: t('nav.events'), href: "/events", key: "events" },
+    { name: t('nav.contact'), href: "/contact", key: "contact" },
+  ];
+
+  return (
+    <header className="bg-background/90 backdrop-blur-sm border-b sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="block" data-testid="link-home">
+              <h1 className="text-2xl font-serif font-bold text-primary">
+                La Cantina
+              </h1>
+              <p className="text-xs text-muted-foreground font-script">Berlin</p>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`text-foreground hover:text-primary transition-colors duration-200 ${
+                  location === item.href ? "text-primary font-medium" : ""
+                }`}
+                data-testid={`link-${item.key}`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop CTA & Language Toggle */}
+          <div className="hidden md:flex items-center gap-4">
+            <LanguageToggle />
+            <Link href="/reservations">
+              <Button className="bg-primary hover:bg-primary/90" data-testid="button-reserve">
+                {t('nav.reserve_table')}
+              </Button>
+            </Link>
+          </div>
+
+          {/* Mobile Language Toggle & Menu */}
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              data-testid="button-mobile-menu"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 border-t">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`block px-3 py-2 text-foreground hover:text-primary transition-colors duration-200 ${
+                    location === item.href ? "text-primary font-medium" : ""
+                  }`}
+                  data-testid={`mobile-link-${item.key}`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              <div className="pt-4">
+                <Link href="/reservations">
+                  <Button className="w-full bg-primary hover:bg-primary/90" data-testid="button-mobile-reserve" onClick={() => setIsMenuOpen(false)}>
+                    {t('nav.reserve_table')}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}
